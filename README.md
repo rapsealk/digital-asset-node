@@ -5,6 +5,7 @@
 
 * --networkid 5777
 * init genesis.json
+* --mine --minerthreads=1
 * --testnet (for Ropsten)
 * --rinkeby (for Rinkeby)
 

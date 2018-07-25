@@ -1,3 +1,4 @@
 node_modules/
 utils/dbconfig.json
 truffle/build/
+geth/
