@@ -26,10 +26,19 @@ exports.createAccount = async (req, res) => {
         // @entropy: at least 32 characters
     );
     */
+   const etherTransaction = await web3.eth.sendTransaction({
+       from: await web3.eth.getCoinbase(),
+       to: account,
+       value: web3.utils.toWei('10', 'ether'),
+       gas: web3.utils.toWei('6000000', 'wei')
+   });
+   console.log('etherTransaction:', etherTransaction);
+   /*
     const balance = await TokenContract.methods.airdrop(account, AIRDROP_).send({
         from: await web3.eth.getCoinbase(),
         gas: web3.utils.toWei('6000000', 'wei')
     });
+    */
     res.json({ succeed: true, address: account });
 };
 
@@ -48,6 +57,12 @@ exports.balanceOf = async (req, res) => {
     const { address } = req.query;
     const balance = await TokenContract.methods.balanceOf(address).call();
     res.json({ succeed: true, balance: balance });
+};
+
+exports.etherBalanceOf = async (req, res) => {
+    const { address } = req.query;
+    const balance = await web3.eth.getBalance(address);
+    res.json({ succeed: true, balance });
 };
 
 exports.registerAsset = async (req, res) => {
