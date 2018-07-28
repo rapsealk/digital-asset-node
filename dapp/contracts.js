@@ -9,6 +9,7 @@ const AssetManager = require('../truffle/build/contracts/AssetManager.json');
 const AssetManagerContract = new web3.eth.Contract(AssetManager.abi, AssetManager.networks[NetworkId].address);
 
 const AIRDROP_ = 10;
+const PASSWORD = 'password_hanium_123';
 
 exports.getCoinbase = async (req, res) => {
     res.json({ succeed: true, coinbase: await web3.eth.getCoinbase() });
@@ -16,14 +17,20 @@ exports.getCoinbase = async (req, res) => {
 
 exports.createAccount = async (req, res) => {
 
-    const account = await web3.eth.accounts.create(/*
-        @entropy: at least 32 characters
+    const account = await web3.eth.personal.newAccount(PASSWORD/*
+        @password
     */);
-    const balance = await TokenContract.methods.airdrop(account.address, AIRDROP_).send({
+    console.log('account:', account);
+    /*
+    const account = await web3.eth.accounts.create(
+        // @entropy: at least 32 characters
+    );
+    */
+    const balance = await TokenContract.methods.airdrop(account, AIRDROP_).send({
         from: await web3.eth.getCoinbase(),
         gas: web3.utils.toWei('6000000', 'wei')
     });
-    res.json({ succeed: true, address: account.address });
+    res.json({ succeed: true, address: account });
 };
 
 exports.airdrop = async (req, res) => {
@@ -43,6 +50,32 @@ exports.balanceOf = async (req, res) => {
     res.json({ succeed: true, balance: balance });
 };
 
+exports.registerAsset = async (req, res) => {
+    const { address } = req.body;
+    const assetId = Date.now();
+    console.log(`address: ${address}, asset: ${assetId}`);
+    try {
+        await web3.eth.personal.unlockAccount(address, PASSWORD);
+        const transaction = await AssetManagerContract.methods.registerAsset(assetId).send({
+            from: await web3.eth.getCoinbase(),// address,
+            gas: web3.utils.toWei('6000000', 'wei')
+        });
+        console.log('transaction:', transaction);
+        res.json({ succeed: true });
+    } catch (error) {
+        console.log('error:', error);
+        res.json({ succeed: false });
+    }
+    // res.json({ succeed: true });
+};
+
+exports.getAssetsOf = async (req, res) => {
+    const { address } = req.query;
+    const assets = await AssetManagerContract.methods.getAssetsOf(address).call();
+    res.json({ succeed: true, assets: assets });
+};
+
+/*
 exports.registerAsset = async (req, res) => {
     const { address, assetId } = req.body;
     // TODO("Contract")
@@ -71,3 +104,4 @@ exports.buyAsset = async (req, res) => {
     console.log('share:', share);
     res.json({ succeed: true, share: share });
 };
+*/
