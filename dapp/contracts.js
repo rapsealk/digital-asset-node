@@ -50,13 +50,13 @@ exports.airdrop = async (req, res) => {
     });
     console.log('tx:', transaction);
     const balance = await TokenContract.methods.balanceOf(address).call();
-    res.json({ succeed: true, balance: balance });
+    res.json({ succeed: true, balance });
 };
 
 exports.balanceOf = async (req, res) => {
     const { address } = req.query;
     const balance = await TokenContract.methods.balanceOf(address).call();
-    res.json({ succeed: true, balance: balance });
+    res.json({ succeed: true, balance });
 };
 
 exports.etherBalanceOf = async (req, res) => {
@@ -69,54 +69,49 @@ exports.registerAsset = async (req, res) => {
     const { address } = req.body;
     const assetId = Date.now();
     console.log(`address: ${address}, asset: ${assetId}`);
+    await web3.eth.personal.unlockAccount(address, PASSWORD);
+    const transaction = await AssetManagerContract.methods.registerAsset(assetId).send({
+        from: address,
+        gas: web3.utils.toWei('6000000', 'wei')
+    });
+    console.log('transaction:', transaction);
+    res.json({ succeed: true });
+};
+
+/*
+exports.buyAsset = async (req, res) => {
+    const { address, assetId, amount } = req.body;
+    console.log('address:', address);
+    console.log('asset ID:', assetId);
+    console.log('amount:', amount);
+
+    const asset = await AssetManagerContract.methods.getAsset(address, assetId).call();
+    console.log('asset:', asset);
+
     try {
-        await web3.eth.personal.unlockAccount(address, PASSWORD);
-        const transaction = await AssetManagerContract.methods.registerAsset(assetId).send({
-            from: await web3.eth.getCoinbase(),// address,
-            gas: web3.utils.toWei('6000000', 'wei')
-        });
-        console.log('transaction:', transaction);
-        res.json({ succeed: true });
-    } catch (error) {
+    const transaction = await AssetManagerContract.methods.buyAsset(assetId, 0).send({
+        from: address,
+        gas: web3.utils.toWei('6000000', 'wei')
+    });
+    console.log('transaction:', transaction);
+    res.json({ succeed: true });
+    }catch(error) {
         console.log('error:', error);
         res.json({ succeed: false });
     }
-    // res.json({ succeed: true });
 };
+*/
 
 exports.getAssetsOf = async (req, res) => {
     const { address } = req.query;
     const assets = await AssetManagerContract.methods.getAssetsOf(address).call();
-    res.json({ succeed: true, assets: assets });
-};
-
-/*
-exports.registerAsset = async (req, res) => {
-    const { address, assetId } = req.body;
-    // TODO("Contract")
-    const tx = await AssetManagerContract.methods.registerAsset(assetId).send({
-        from: address,
-        gas: web3.utils.toWei('6000000', 'wei')
+    const promise = await assets.map(async (id, index) => {
+        assets[index] = await AssetManagerContract.methods.getAsset(address, id).call();
+        // remove duplicated values
+        Object.keys(assets[index]).forEach(key => {
+            if (!isNaN(key)) delete assets[index][key];
+        });
     });
-    console.log('transaction:', tx);
-    res.json({ succeed: true });
+    await Promise.all(promise);
+    res.json({ succeed: true, assets });
 };
-
-exports.buyAsset = async (req, res) => {
-    const { address, amount } = req.body;
-    console.log('address:', address, ', amount:', amount);
-    const price = await AssetManagerContract.methods.getCurrentPrice().call();
-    console.log('price:', price);
-    const buyableShare = await AssetManagerContract.methods.getBuyableShare().call();
-    console.log('buyableShare:', buyableShare);
-    if (buyableShare < amount) return res.json({ succeed: false });
-    const tx = await AssetManagerContract.methods.buyAsset(price, amount).send({
-        from: address,
-        gas: web3.utils.toWei('6000000', 'wei')
-    });
-    console.log('tx:', tx);
-    const share = await AssetManagerContract.methods.getOwnShare(address).call();
-    console.log('share:', share);
-    res.json({ succeed: true, share: share });
-};
-*/
