@@ -66,8 +66,7 @@ exports.etherBalanceOf = async (req, res) => {
 };
 
 exports.registerAsset = async (req, res) => {
-    const { address } = req.body;
-    const assetId = Date.now();
+    const { address, assetId } = req.body;
     console.log(`address: ${address}, asset: ${assetId}`);
     await web3.eth.personal.unlockAccount(address, PASSWORD);
     const transaction = await AssetManagerContract.methods.registerAsset(assetId).send({
