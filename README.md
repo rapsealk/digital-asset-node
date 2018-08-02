@@ -1,4 +1,6 @@
-# Run a Geth client
+# Digital Asset Node --branch dev
+
+## Run a Geth client
 ```
 ~/ethereum$ geth --datadir . --rpcapi personal,db,eth,net,web3 console --rpc --dev
 ```

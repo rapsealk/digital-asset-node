@@ -77,30 +77,6 @@ exports.registerAsset = async (req, res) => {
     res.json({ succeed: true });
 };
 
-/*
-exports.buyAsset = async (req, res) => {
-    const { address, assetId, amount } = req.body;
-    console.log('address:', address);
-    console.log('asset ID:', assetId);
-    console.log('amount:', amount);
-
-    const asset = await AssetManagerContract.methods.getAsset(address, assetId).call();
-    console.log('asset:', asset);
-
-    try {
-    const transaction = await AssetManagerContract.methods.buyAsset(assetId, 0).send({
-        from: address,
-        gas: web3.utils.toWei('6000000', 'wei')
-    });
-    console.log('transaction:', transaction);
-    res.json({ succeed: true });
-    }catch(error) {
-        console.log('error:', error);
-        res.json({ succeed: false });
-    }
-};
-*/
-
 exports.getAssetsOf = async (req, res) => {
     const { address } = req.query;
     const assets = await AssetManagerContract.methods.getAssetsOf(address).call();
@@ -109,8 +85,20 @@ exports.getAssetsOf = async (req, res) => {
         // remove duplicated values
         Object.keys(assets[index]).forEach(key => {
             if (!isNaN(key)) delete assets[index][key];
+            else if (!assets[index][key].includes('0x')) assets[index][key] = parseInt(assets[index][key]);
         });
     });
     await Promise.all(promise);
     res.json({ succeed: true, assets });
+};
+
+exports.trade = async (req, res) => {
+    const { address, owner, id, amount } = req.body;
+    const transaction = await AssetManagerContract.methods.trade(id, owner, amount).send({
+        from: address,
+        gas: web3.utils.toWei('6000000', 'wei')
+    });
+    console.log('transaction:', transaction);
+    const asset = await AssetManagerContract.methods.getAsset(address, id).call();
+    res.json({ succeed: true, balance: asset.owningShare });
 };
