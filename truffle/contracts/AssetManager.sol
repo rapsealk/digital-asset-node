@@ -9,7 +9,6 @@ contract AssetManager {
         address owner;
         uint256 price;
         uint8 totalShare;
-        uint8 buyableShare;
         mapping (address => uint8) owningShareOf;
     }
 
@@ -27,7 +26,6 @@ contract AssetManager {
         assets[_id].owner = msg.sender;
         assets[_id].price = 1;
         assets[_id].totalShare = 100;
-        assets[_id].buyableShare = 100;
         assets[_id].owningShareOf[msg.sender] = 100;
         assetsOf[msg.sender].push(_id);
     }
@@ -36,7 +34,6 @@ contract AssetManager {
                                                                         address owner,
                                                                         uint256 price,
                                                                         uint8 totalShare,
-                                                                        uint8 buyableShare,
                                                                         uint8 owningShare) {
         Asset storage asset = assets[_id];
         return (
@@ -44,7 +41,6 @@ contract AssetManager {
             asset.owner,
             asset.price,
             asset.totalShare,
-            asset.buyableShare,
             asset.owningShareOf[_account]
         );
     }
@@ -53,14 +49,25 @@ contract AssetManager {
         return assetsOf[_owner];
     }
     
-    /*
-    function buyAsset(uint256 _id, uint8 _amount) public payable {
+    function trade(uint256 _id, address _owner, uint8 _amount) public payable returns (bool) {
+        // price might be changed. (unstable)
         Asset storage asset = assets[_id];
-        if (asset.buyableShare < _amount) revert();
-        asset.buyableShare -= _amount;
+        if (asset.owningShareOf[_owner] < _amount) return false;
+        asset.owningShareOf[_owner] -= _amount;
+        if (asset.owningShareOf[_owner] == 0) {
+            uint8 index;
+            for (index = 0; index < assetsOf[_owner].length; index++) {
+                if (assetsOf[_owner][index] == _id) break;
+            }
+            for (index = index+1; index < assetsOf[_owner].length; index++) {
+                assetsOf[_owner][index-1] = assetsOf[_owner][index];
+            }
+            assetsOf[_owner].length--;
+        }
         if (asset.owningShareOf[msg.sender] == 0) assetsOf[msg.sender].push(_id);
         asset.owningShareOf[msg.sender] += _amount;
-        tokenReward.transfer(msg.sender, asset.owner, asset.price * _amount);
+        bool result = tokenReward.transfer(msg.sender, _owner, asset.price * _amount);
+        if (result == false) revert();
+        return result;
     }
-    */
 }

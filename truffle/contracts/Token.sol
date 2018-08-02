@@ -34,6 +34,11 @@ contract Token is BasicToken {
     function transfer(address _from, address _to, uint256 _amount) public returns (bool) {
         require(_from != address(0));
         require(_to != address(0));
+
+        if (balances[_from] < _amount) {
+            revert();
+            return false;
+        }
         
         balances[_from] -= _amount;
         balances[_to] += _amount;
