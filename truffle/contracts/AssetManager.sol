@@ -23,14 +23,12 @@ contract AssetManager {
     }
 
     function registerAsset(uint256 _id) public {
-        Asset storage asset;
-        asset.id = _id;
-        asset.owner = msg.sender;
-        asset.price = 1;
-        asset.totalShare = 100;
-        asset.buyableShare = 100;
-        asset.owningShareOf[msg.sender] = 100;
-        assets[_id] = asset;
+        assets[_id].id = _id;
+        assets[_id].owner = msg.sender;
+        assets[_id].price = 1;
+        assets[_id].totalShare = 100;
+        assets[_id].buyableShare = 100;
+        assets[_id].owningShareOf[msg.sender] = 100;
         assetsOf[msg.sender].push(_id);
     }
 

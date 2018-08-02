@@ -109,6 +109,7 @@ exports.getAssetsOf = async (req, res) => {
         // remove duplicated values
         Object.keys(assets[index]).forEach(key => {
             if (!isNaN(key)) delete assets[index][key];
+            else if (!assets[index][key].includes('0x')) assets[index][key] = parseInt(assets[index][key]);
         });
     });
     await Promise.all(promise);
