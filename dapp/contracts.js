@@ -11,6 +11,8 @@ const AssetManagerContract = new web3.eth.Contract(AssetManager.abi, AssetManage
 const AIRDROP_ = 10;
 const PASSWORD = 'password_hanium_123';
 
+const firebase = require('../controllers/firebase');
+
 exports.getCoinbase = async (req, res) => {
     res.json({ succeed: true, coinbase: await web3.eth.getCoinbase() });
 };
@@ -77,7 +79,7 @@ exports.registerAsset = async (req, res) => {
     res.json({ succeed: true });
 };
 
-exports.getAssetsOf = async (req, res) => {
+exports.getAssetsOf = async (req, res, next) => {
     const { address } = req.query;
     const assets = await AssetManagerContract.methods.getAssetsOf(address).call();
     const promise = await assets.map(async (id, index) => {
@@ -89,6 +91,7 @@ exports.getAssetsOf = async (req, res) => {
         });
     });
     await Promise.all(promise);
+    await firebase.getAssets(assets);
     res.json({ succeed: true, assets });
 };
 

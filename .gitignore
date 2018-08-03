@@ -1,4 +1,6 @@
 node_modules/
 utils/dbconfig.json
+utils/hanium-2018-firebase-adminsdk-lb97b-95e7402c08.json
+utils/firebase.json
 truffle/build/
 geth/
