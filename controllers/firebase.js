@@ -1,5 +1,5 @@
 const admin = require('firebase-admin');
-const serviceAccount = require('../utils/hanium-2018-firebase-adminsdk-lb97b-95e7402c08.json');
+const serviceAccount = require('../utils/hanium-2018-firebase-adminsdk-lb97b-8fc9298822.json');
 const firebase = require('../utils/firebase.json');
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
