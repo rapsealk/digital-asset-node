@@ -79,7 +79,14 @@ exports.registerAsset = async (req, res) => {
     res.json({ succeed: true });
 };
 
-exports.getAssetsOf = async (req, res, next) => {
+exports.getAsset = async (req, res) => {
+    const { address, id } = req.query;
+    const asset = await AssetManagerContract.methods.getAsset(address, id).call();
+    console.log('asset:', asset);
+    res.json({ succeed: true, asset });
+};
+
+exports.getAssetsOf = async (req, res) => {
     const { address } = req.query;
     const assets = await AssetManagerContract.methods.getAssetsOf(address).call();
     const promise = await assets.map(async (id, index) => {
@@ -91,7 +98,7 @@ exports.getAssetsOf = async (req, res, next) => {
         });
     });
     await Promise.all(promise);
-    await firebase.getAssets(assets);
+    // await firebase.getAssets(assets);
     res.json({ succeed: true, assets });
 };
 
