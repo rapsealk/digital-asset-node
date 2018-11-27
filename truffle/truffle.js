@@ -21,6 +21,14 @@ module.exports = {
 			port: 8545,
 			network_id: "*",
 			gas: 6000000
+		},
+		// truffle migrate --network rinkeby
+		rinkeby: {
+			host: "localhost",
+			port: 8545,
+			from: "0x",
+			network_id: 4,
+			gas: 4612388
 		}
 	}
 };
