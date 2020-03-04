@@ -76,7 +76,8 @@ exports.registerAsset = async (req, res) => {
     console.log('transaction:', transaction);
     res.json({ succeed: true });
 };
-
+// 0x7710fecEcaFa1A8fd26d226F5362B39f7fdF35Fa
+// 0x3C9Ed3BE319f34bEe26a60fC146B625E9Ca7746D
 exports.getAsset = async (req, res) => {
     const { address, id } = req.query;
     const asset = await AssetManagerContract.methods.getAsset(address, id).call();
@@ -101,6 +102,7 @@ exports.getAssetsOf = async (req, res) => {
 
 exports.trade = async (req, res) => {
     const { address, owner, id, amount } = req.body;
+    await web3.eth.personal.unlockAccount(address, PASSWORD);
     const transaction = await AssetManagerContract.methods.trade(id, owner, amount).send({
         from: address,
         gas: web3.utils.toWei('6000000', 'wei')
